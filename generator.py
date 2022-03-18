@@ -29,7 +29,7 @@ for item in tqdm.tqdm(range(len(mnist_dataset))):
     os.mkdir(root_path)
     
     while(i_p < frame_len):
-        
+
         canvas = numpy.zeros((1, 64, 64))
 
         if i_p == 0:
@@ -57,7 +57,7 @@ for item in tqdm.tqdm(range(len(mnist_dataset))):
         image_path = root_path + f'/frame{i_p}.png'
         # cv2.imshow('asd', canvas)
         # cv2.waitKey(150)
-        cv2.imwrite(image_path, canvas)
+        cv2.imwrite(image_path, canvas * 256)
         canvas = rearrange(canvas, 'h w c -> c h w')
 
         i_p += 1
