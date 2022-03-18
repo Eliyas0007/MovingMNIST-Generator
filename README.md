@@ -1,2 +1,25 @@
 # MovingMNIST-Generator
-In this repo, we are using MNIST dataset to generate MovingMNIST dataset
+In this repo, we are using MNIST dataset to generate MovingMNIST dataset.
+
+Only verticle movement is supported currently for now.
+
+More features are coming soon!
+
+## Tested Environment
+
+- Python 3.7.11
+- opencv 4.5.5.62
+- torch 1.10.1
+- torchvision 0.11.2
+
+## How to use
+
+```
+$ python main.py
+```
+
+## Examples
+
+<p align="center">
+    <img width="200" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/vertical.gif" alt="Vertivcal Example">
+</p>

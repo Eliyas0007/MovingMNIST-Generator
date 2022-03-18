@@ -9,7 +9,7 @@ from einops import rearrange
 
 
 class Generator():
-    def __init__(self, frame_len=20, step=4, direction='vertical'):
+    def __init__(self, frame_len=20, step=4, direction='vertical', generation_path='.'):
         
         '''
         Direction Options
@@ -20,6 +20,7 @@ class Generator():
         self.direction = direction 
         self.step = step
         self.frame_len = frame_len
+        self.generation_path = generation_path
 
         self._dataset = datasets.MNIST(root='MNISTDATA/', train=False, download=True, transform=transforms.Compose([
                                     transforms.ToTensor(),
@@ -27,17 +28,23 @@ class Generator():
 
 
     def generate(self):
+
+        root_path = self.generation_path + f'/data_{self.direction}'
+        os.mkdir(root_path)
+
         for item in tqdm.tqdm(range(len(self._dataset))):
     
             image, _ = self._dataset[item]
             image = image.cpu().detach().numpy()
-            
+
             i = 0
             i_p = 0
             moving_down = True
 
-            root_path = f'./GeneratedData/video{item}_{self.direction}'
-            os.mkdir(root_path)
+            
+
+            video_path = f'/video{item}'
+            os.mkdir(root_path + video_path)
 
             while(i_p < self.frame_len):
 
@@ -65,7 +72,7 @@ class Generator():
 
 
                 canvas = rearrange(canvas, 'c h w -> h w c')
-                image_path = root_path + f'/frame{i_p}.png'
+                image_path = root_path + video_path + f'/frame{i_p}.png'
                 # cv2.imshow('asd', canvas)
                 # cv2.waitKey(150)
                 cv2.imwrite(image_path, canvas * 256)
