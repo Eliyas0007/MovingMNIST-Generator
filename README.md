@@ -1,7 +1,7 @@
 # MovingMNIST-Generator
 In this repo, we are using MNIST dataset to generate MovingMNIST dataset.
 
-Only verticle movement is supported currently for now.
+Currently, only vertical movement is supported.
 
 More features are coming soon!
 
