@@ -1,7 +1,7 @@
 # MovingMNIST-Generator
 In this repo, we are using MNIST dataset to generate MovingMNIST dataset.
 
-Only verticle movement is supported currently for now.
+Currently, only vertical movement is supported.
 
 More features are coming soon!
 
@@ -20,6 +20,9 @@ $ python main.py
 
 ## Examples
 
+vertical moving digit
 <p align="center">
     <img width="200" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/vertical.gif" alt="Vertivcal Example">
 </p>
+
+**If you feel this repo is useful please hit the star and let others to know! Thank you!**
