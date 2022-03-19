@@ -25,4 +25,4 @@ vertical moving digit
     <img width="200" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/vertical.gif" alt="Vertivcal Example">
 </p>
 
-**If you feel this repo is useful please hit the star and let other to know! Thank you!**
+**If you feel this repo is useful please hit the star and let others to know! Thank you!**
