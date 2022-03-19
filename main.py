@@ -1,3 +1,4 @@
+import random
 from generator import Generator
 
 if __name__ == '__main__':
@@ -22,5 +23,5 @@ if __name__ == '__main__':
             for saving generated dataset
     '''
     generator = Generator(frame_len=20, step=3, direction='diagonal')
-    generator.show_example(14)
+    generator.show_example(random.randrange(0, 10000))
     # generator.generate()
