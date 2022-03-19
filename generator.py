@@ -18,6 +18,15 @@ class Generator():
         "horizontal"
         "diagonal"
         '''
+        directions = ['vertical', 'horizontal', 'diagonal']
+
+        for i, d in enumerate(directions):
+            print(d, i)
+            if direction == d:
+                break
+            if direction != d and i == (len(directions) - 1):
+                raise ValueError(f'Direction: [{direction}] is NOT supported moving direction!')
+            
         self.direction = direction 
         self.step = step
         self.frame_len = frame_len
@@ -37,8 +46,6 @@ class Generator():
         
         margin_f = self.step * self._iter
         margin_b = margin_f + 28
-
-        print(margin_f, margin_b, self._is_forward)
 
         if self._is_forward:
             self._iter += 1
@@ -60,8 +67,6 @@ class Generator():
             canvas[:, 0:28, margin_f:margin_b] += image
         elif self.direction == 'diagonal':
             canvas[:, margin_f:margin_b, margin_f:margin_b] += image
-        else:
-            assert 'not supported direction!'
 
         return canvas
                    
@@ -78,6 +83,8 @@ class Generator():
 
             video_path = f'/video{item}'
             os.mkdir(root_path + video_path)
+
+            self._iter = 0
 
             for f in range(self.frame_len):
 
