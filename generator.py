@@ -21,7 +21,6 @@ class Generator():
         directions = ['vertical', 'horizontal', 'diagonal']
 
         for i, d in enumerate(directions):
-            print(d, i)
             if direction == d:
                 break
             if direction != d and i == (len(directions) - 1):
@@ -31,7 +30,6 @@ class Generator():
         self.step = step
         self.frame_len = frame_len
         self.generation_path = generation_path
-
 
         self._dataset = datasets.MNIST(root='MNISTDATA/', train=False, download=True, transform=transforms.Compose([
                                     transforms.ToTensor(),
@@ -51,13 +49,13 @@ class Generator():
             self._iter += 1
             if margin_b > 60:
                 self._is_forward = False
-                self._iter -= 2
+                self._iter -= 1
                 return
         else:
             self._iter -= 1
             if margin_f < 1:
                 self._is_forward = True
-                self._iter += 2
+                self._iter += 1
                 return
 
 
@@ -85,19 +83,22 @@ class Generator():
             os.mkdir(root_path + video_path)
 
             self._iter = 0
-
-            for f in range(self.frame_len):
+            
+            f = 0
+            while f < self.frame_len:
 
                 canvas = numpy.zeros((1, 64, 64))
 
                 canvas = self._move_image(image)
                 if canvas is None:
+                    f -= 1
                     continue
 
                 canvas = rearrange(canvas, 'c h w -> h w c')
                 image_path = root_path + video_path + f'/frame{f}.png'
                 cv2.imwrite(image_path, canvas * 256)
                 canvas = rearrange(canvas, 'h w c -> c h w')
+                f += 1
 
 
     def show_example(self, index: int):
@@ -105,14 +106,17 @@ class Generator():
         image, _ = self._dataset[index]
         image = image.cpu().detach().numpy()
 
-        for f in range(self.frame_len):
+        f = 0
+        while f < self.frame_len:
             canvas = numpy.zeros((1, 64, 64))
             canvas = self._move_image(image)
             if canvas is None:
+                f -= 1
                 continue
 
             canvas = rearrange(canvas, 'c h w -> h w c')
             cv2.imshow('example', canvas)
             cv2.waitKey(200)
+            cv2.imwrite(f'./example{f}.png', canvas * 256)
             canvas = rearrange(canvas, 'h w c -> c h w')
-
+            f += 1

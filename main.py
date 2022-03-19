@@ -21,6 +21,6 @@ if __name__ == '__main__':
         generation_path:
             for saving generated dataset
     '''
-    generator = Generator(frame_len=20, step=4, direction='vertical')
-    generator.show_example(10)
+    generator = Generator(frame_len=20, step=3, direction='diagonal')
+    generator.show_example(14)
     # generator.generate()
