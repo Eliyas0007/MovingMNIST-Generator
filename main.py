@@ -2,7 +2,7 @@ from generator import Generator
 
 if __name__ == '__main__':
     '''
-        There are 3 parameters 
+        There are 4 parameters 
 
         frame_len:
             the length of frame you want to generate
@@ -21,5 +21,6 @@ if __name__ == '__main__':
         generation_path:
             for saving generated dataset
     '''
-    generator = Generator(frame_len=20, step=4, direction='vertical')
-    generator.generate()
+    generator = Generator(frame_len=20, step=4, direction='diagonal')
+    generator.show_example(10)
+    # generator.generate()

@@ -9,6 +9,7 @@ from einops import rearrange
 
 
 class Generator():
+
     def __init__(self, frame_len=20, step=4, direction='vertical', generation_path='.'):
         
         '''
@@ -22,10 +23,48 @@ class Generator():
         self.frame_len = frame_len
         self.generation_path = generation_path
 
+
         self._dataset = datasets.MNIST(root='MNISTDATA/', train=False, download=True, transform=transforms.Compose([
                                     transforms.ToTensor(),
                                     ]))
+        self._is_forward = True
+        self._iter = 0
 
+
+    def _move_image(self, image):
+
+        canvas = numpy.zeros((1, 64, 64))
+        
+        margin_f = self.step * self._iter
+        margin_b = margin_f + 28
+
+        print(margin_f, margin_b, self._is_forward)
+
+        if self._is_forward:
+            self._iter += 1
+            if margin_b > 60:
+                self._is_forward = False
+                self._iter -= 2
+                return
+        else:
+            self._iter -= 1
+            if margin_f < 1:
+                self._is_forward = True
+                self._iter += 2
+                return
+
+
+        if self.direction == 'vertical':
+            canvas[:, margin_f:margin_b, 0:28] += image
+        elif self.direction == 'horizontal':
+            canvas[:, 0:28, margin_f:margin_b] += image
+        elif self.direction == 'diagonal':
+            canvas[:, margin_f:margin_b, margin_f:margin_b] += image
+        else:
+            assert 'not supported direction!'
+
+        return canvas
+                   
 
     def generate(self):
 
@@ -37,46 +76,36 @@ class Generator():
             image, _ = self._dataset[item]
             image = image.cpu().detach().numpy()
 
-            i = 0
-            i_p = 0
-            moving_down = True
-
-            
-
             video_path = f'/video{item}'
             os.mkdir(root_path + video_path)
 
-            while(i_p < self.frame_len):
+            for f in range(self.frame_len):
 
                 canvas = numpy.zeros((1, 64, 64))
 
-                if i_p == 0:
-                    top = self.step*i
-                    bottom = top + 28
-
-                if moving_down:
-                    i += 1
-                    if bottom > 60:
-                        moving_down = False
-                        continue
-                else:
-                    i -= 1
-                    if top < 1:
-                        moving_down = True
-                        continue
-
-                top = self.step*i
-                bottom = top + 28
-
-                canvas[:, top:bottom, 0:28] += image 
-
+                canvas = self._move_image(image)
+                if canvas is None:
+                    continue
 
                 canvas = rearrange(canvas, 'c h w -> h w c')
-                image_path = root_path + video_path + f'/frame{i_p}.png'
-                # cv2.imshow('asd', canvas)
-                # cv2.waitKey(150)
+                image_path = root_path + video_path + f'/frame{f}.png'
                 cv2.imwrite(image_path, canvas * 256)
                 canvas = rearrange(canvas, 'h w c -> c h w')
 
-                i_p += 1
+
+    def show_example(self, index: int):
+
+        image, _ = self._dataset[index]
+        image = image.cpu().detach().numpy()
+
+        for f in range(self.frame_len):
+            canvas = numpy.zeros((1, 64, 64))
+            canvas = self._move_image(image)
+            if canvas is None:
+                continue
+
+            canvas = rearrange(canvas, 'c h w -> h w c')
+            cv2.imshow('example', canvas)
+            cv2.waitKey(200)
+            canvas = rearrange(canvas, 'h w c -> c h w')
 
