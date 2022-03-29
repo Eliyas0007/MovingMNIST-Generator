@@ -22,6 +22,6 @@ if __name__ == '__main__':
         generation_path:
             for saving generated dataset
     '''
-    generator = Generator(frame_len=20, step=3, direction='diagonal')
-    generator.show_example(random.randrange(0, 10000))
-    # generator.generate()
+    generator = Generator(frame_len=20, step=3, direction='horizontal')
+    # generator.show_example(random.randrange(0, 10000))
+    generator.generate()

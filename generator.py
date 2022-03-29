@@ -91,6 +91,8 @@ class Generator():
 
                 canvas = self._move_image(image)
                 if canvas is None:
+                    if f == 0:
+                        continue
                     f -= 1
                     continue
 
