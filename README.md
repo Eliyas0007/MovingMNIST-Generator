@@ -12,10 +12,6 @@ This is a really handy tool for generating customized MovingMNIST dataset. It us
 ## Supported Features
 - Linear movement with constant velocity
 
-## Coming Soon...
-- Custimizible starting location
-- Non-linear movement and velocity
-
 ## Tested Environment
 
 - Python 3.7.11
@@ -30,5 +26,9 @@ Open the terminal at the directory of this repo and simply type in:
 ```console
 $ python main.py
 ```
+
+## Coming Soon...
+- Custimizible starting location
+- Non-linear movement and velocity
 
 **If you feel this repo is useful please hit the star and let others to know! Thank you!**
