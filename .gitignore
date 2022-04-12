@@ -12,6 +12,7 @@ example*.png
 # Other folders
 MNISTDATA/
 data_*/
+GeneratedExample/
 
 # Distribution / packaging
 .Python

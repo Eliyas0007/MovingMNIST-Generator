@@ -23,5 +23,5 @@ if __name__ == '__main__':
             for saving generated dataset
     '''
     generator = Generator(frame_len=20, step=3, direction='horizontal')
-    # generator.show_example(random.randrange(0, 10000))
-    generator.generate()
+    generator.show_example(random.randrange(0, 10000))
+    # generator.generate()

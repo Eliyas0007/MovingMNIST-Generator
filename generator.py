@@ -119,6 +119,6 @@ class Generator():
             canvas = rearrange(canvas, 'c h w -> h w c')
             cv2.imshow(f'example {index}', canvas)
             cv2.waitKey(200)
-            cv2.imwrite(f'./example{f}.png', canvas * 256)
+            cv2.imwrite(f'./GeneratedExample/example{f}.png', canvas * 256)
             canvas = rearrange(canvas, 'h w c -> c h w')
             f += 1
