@@ -30,5 +30,5 @@ if __name__ == '__main__':
             default is current directory which is '.'
     '''
     generator = Generator(frame_len=20, step=3, num_digits=2, direction='vertical')
-    # generator.show_example(random.randrange(0, 10000))
-    generator.generate()
+    generator.show_example(random.randrange(0, 10000))
+    # generator.generate()

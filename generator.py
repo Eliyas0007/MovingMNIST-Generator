@@ -81,22 +81,7 @@ class Generator():
         except FileExistsError:
             ...
 
-        is_continue = False
         for index in tqdm.tqdm(range(len(self._dataset))):
-
-            images = []
-
-            for i in range(self.num_digits):
-
-                if i >= len(self._dataset):
-                    image, _ = self._dataset[index+i - len(self._dataset)]
-                else:
-                    image, _ = self._dataset[index+i]
-
-                image = image.cpu().detach().numpy()
-                images.append(image)
-                self._iters.append(i * 10)
-                self._is_forwards.append(True)
             
             try:
                 video_path = f'/video{index}'
@@ -104,60 +89,75 @@ class Generator():
             except FileExistsError:
                 ...
             
-            f = 0
-            while f < self.frame_len:
-                if f == 0:
-                    self._is_first_frame = True
-                elif f > 0 :
-                    self._is_first_frame = False
-
-                canvas = numpy.zeros((1, 64, 64))
-
-                for i, image in enumerate(images):
-                    y = i * 32
-                    x = i * 35
-                    new = self._move_image(image, (y, x), i)
-                    
-
-                    if new is None:
-                        if f == 0:
-                            continue
-                        f -= 1
-                        is_continue = True
-                        continue
-                    else:
-                        canvas += new
-
-                if is_continue:
-                    is_continue = False
-                    continue
-
-                canvas = rearrange(canvas, 'c h w -> h w c')
+            video = self.make_video(index)
+            
+            for f, frame in enumerate(video):
+                frame = rearrange(frame, 'c h w -> h w c')
                 image_path = root_path + video_path + f'/frame{f}.png'
-                cv2.imshow('asd', canvas)
-                cv2.waitKey(200)
-                cv2.imwrite(image_path, canvas * 256)
-                canvas = rearrange(canvas, 'h w c -> c h w')
-                f += 1
-            break
+                cv2.imwrite(image_path, frame * 256)
+    
+    
+    def make_video(self, index):
+
+        images = []
+        is_continue = False
+        video = []
+
+        for i in range(self.num_digits):
+
+            if index >= (len(self._dataset)-1-self.num_digits):
+                image, _ = self._dataset[index+i - len(self._dataset)]
+            else:
+                image, _ = self._dataset[index+i]
+
+            image = image.cpu().detach().numpy()
+            images.append(image)
+            self._iters.append(i * 10)
+            self._is_forwards.append(True)
+    
+            
+        f = 0
+        b = 0
+        while f < self.frame_len:
+            if f == 0:
+                self._is_first_frame = True
+            elif f > 0 :
+                self._is_first_frame = False
+            canvas = numpy.zeros((1, 64, 64))
+            for i, image in enumerate(images):
+                y = i * 32
+                x = i * 35
+                new = self._move_image(image, (y, x), i)
+                
+                if new is None:
+                    if f == 0:
+                        continue
+                    f -= 1
+                    is_continue = True
+                    continue
+                else:
+                    canvas += new
+
+            if is_continue:
+                is_continue = False
+                continue
+
+            if b == 20:
+                break
+
+            video.append(canvas)
+            f += 1
+            b += 1
+
+        return video
 
 
     def show_example(self, index: int):
 
-        image, _ = self._dataset[index]
-        image = image.cpu().detach().numpy()
+        video = self.make_video(index)
 
-        f = 0
-        while f < self.frame_len:
-            canvas = numpy.zeros((1, 64, 64))
-            canvas = self._move_image(image), 
-            if canvas is None:
-                f -= 1
-                continue
-
-            canvas = rearrange(canvas, 'c h w -> h w c')
-            cv2.imshow(f'example {index}', canvas)
+        for f, frame in enumerate(video):
+            frame = rearrange(frame, 'c h w -> h w c')
+            cv2.imshow(f'example {index}', frame)
             cv2.waitKey(200)
-            cv2.imwrite(f'./GeneratedExample/example{f}.png', canvas * 256)
-            canvas = rearrange(canvas, 'h w c -> c h w')
-            f += 1
+            cv2.imwrite(f'./GeneratedExample/example{f}.png', frame * 256)
