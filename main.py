@@ -18,10 +18,17 @@ if __name__ == '__main__':
                                                                               horizontal,
                                                                               diagonal
             default is vertical
+
+        num_digits:
+            determine the numbers of appearing digits maximum 2 in vertical or horizontal direction,
+                                                              3 in diagonal direction
+            default is 1
                                         
         generation_path:
             for saving generated dataset
+
+            default is current directory which is '.'
     '''
-    generator = Generator(frame_len=20, step=3, direction='horizontal')
-    generator.show_example(random.randrange(0, 10000))
-    # generator.generate()
+    generator = Generator(frame_len=20, step=3, num_digits=2, direction='vertical')
+    # generator.show_example(random.randrange(0, 10000))
+    generator.generate()
