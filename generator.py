@@ -100,13 +100,13 @@ class Generator():
     
     def _make_video(self, index):
 
+        video = []
         images = []
         is_continue = False
-        video = []
 
         for i in range(self.num_digits):
 
-            if index >= (len(self._dataset)-1-self.num_digits):
+            if index >= (len(self._dataset)-self.num_digits):
                 image, _ = self._dataset[index+i - len(self._dataset)]
             else:
                 image, _ = self._dataset[index+i]
