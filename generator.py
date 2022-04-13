@@ -26,18 +26,19 @@ class Generator():
             if direction != d and i == (len(directions) - 1):
                 raise ValueError(f'Direction: [{direction}] is NOT supported moving direction!')
             
-        self.direction = direction 
         self.step = step
+        self.direction = direction 
         self.frame_len = frame_len
-        self.generation_path = generation_path
         self.num_digits = num_digits
+        self.generation_path = generation_path
+
+        self._iters = []
+        self._is_forwards = []
+        self._is_first_frame = True
 
         self._dataset = datasets.MNIST(root='MNISTDATA/', train=False, download=True, transform=transforms.Compose([
                                     transforms.ToTensor(),
                                     ]))
-        self._is_forwards = []
-        self._is_first_frame = True
-        self._iters = []
 
 
     def _move_image(self, image, initial_position=(0, 0), iter_index=0):
