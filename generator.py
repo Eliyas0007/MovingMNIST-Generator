@@ -90,7 +90,7 @@ class Generator():
             except FileExistsError:
                 ...
             
-            video = self.make_video(index)
+            video = self._make_video(index)
             
             for f, frame in enumerate(video):
                 frame = rearrange(frame, 'c h w -> h w c')
@@ -98,7 +98,7 @@ class Generator():
                 cv2.imwrite(image_path, frame * 256)
     
     
-    def make_video(self, index):
+    def _make_video(self, index):
 
         images = []
         is_continue = False
@@ -155,7 +155,7 @@ class Generator():
 
     def show_example(self, index: int):
 
-        video = self.make_video(index)
+        video = self._make_video(index)
 
         for f, frame in enumerate(video):
             frame = rearrange(frame, 'c h w -> h w c')
