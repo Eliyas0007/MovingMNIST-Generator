@@ -11,6 +11,7 @@ This is a really handy tool for generating customized MovingMNIST dataset. It us
 
 ## Supported Features
 - Linear movement with constant velocity
+- Up to 3 digit movement
 
 ## Tested Environment
 
