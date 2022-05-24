@@ -1,7 +1,9 @@
 import os
 import cv2
 import tqdm
+import math
 import numpy
+import random
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
@@ -18,7 +20,7 @@ class Generator():
         "horizontal"
         "diagonal"
         '''
-        directions = ['vertical', 'horizontal', 'diagonal']
+        directions = ['vertical', 'horizontal', 'diagonal', 'circular']
 
         for i, d in enumerate(directions):
             if direction == d:
@@ -44,34 +46,49 @@ class Generator():
     def _move_image(self, image, initial_position=(0, 0), iter_index=0):
 
         canvas = numpy.zeros((1, 64, 64))
- 
-        margin_f = self.step * self._iters[iter_index]
-        margin_b = margin_f + 28
 
-        if self._is_forwards[iter_index]:
+        if self.direction == 'circular':
+            radius = 16
+            angle = (35/360)
+            origin = 32
+            x = radius * math.sin(self._iters[iter_index] * math.pi * angle) + origin
+            y = radius * math.cos(self._iters[iter_index] * math.pi * angle) + origin
+
+            canvas[:, int(x)-14:int(x)+14, int(y)-14:int(y)+14] += image
             self._iters[iter_index] += 1
-            if margin_b > 60:
-                self._is_forwards[iter_index] = False
-                self._iters[iter_index] -= 2
-                return
+
+            return canvas
+
         else:
-            self._iters[iter_index] -= 1
-            if margin_f < 1:
-                self._is_forwards[iter_index] = True
-                self._iters[iter_index] += 2
-                return
+            
+ 
+            margin_f = self.step * self._iters[iter_index]
+            margin_b = margin_f + 28
+
+            if self._is_forwards[iter_index]:
+                self._iters[iter_index] += 1
+                if margin_b > 60:
+                    self._is_forwards[iter_index] = False
+                    self._iters[iter_index] -= 2
+                    return
+            else:
+                self._iters[iter_index] -= 1
+                if margin_f < 1:
+                    self._is_forwards[iter_index] = True
+                    self._iters[iter_index] += 2
+                    return
 
 
-        if self.direction == 'vertical':
-            canvas[:, margin_f:margin_b, 0+initial_position[0]:28+initial_position[0]] += image
+            if self.direction == 'vertical':
+                canvas[:, margin_f:margin_b, 0+initial_position[0]:28+initial_position[0]] += image
 
-        elif self.direction == 'horizontal':
-            canvas[:, 0+initial_position[0]:28+initial_position[0], margin_f:margin_b] += image
+            elif self.direction == 'horizontal':
+                canvas[:, 0+initial_position[0]:28+initial_position[0], margin_f:margin_b] += image
 
-        elif self.direction == 'diagonal':
-            canvas[:, margin_f:margin_b, margin_f:margin_b] += image
+            elif self.direction == 'diagonal':
+                canvas[:, margin_f:margin_b, margin_f:margin_b] += image
 
-        return canvas
+            return canvas
                    
 
     def generate(self):
