@@ -75,13 +75,13 @@ class Generator():
 
             if self._is_forwards[iter_index]:
                 self._iters[iter_index] += 1
-                if margin_b > self.canvas_size - 20:
+                if margin_b > self.canvas_size - 4:
                     self._is_forwards[iter_index] = False
                     self._iters[iter_index] -= 2
                     return
             else:
                 self._iters[iter_index] -= 1
-                if margin_f < 1:
+                if margin_f < 0:
                     self._is_forwards[iter_index] = True
                     self._iters[iter_index] += 2
                     return
@@ -117,6 +117,8 @@ class Generator():
             except FileExistsError:
                 ...
             
+            self._iters = []
+            self.step = 1
             video = self._make_video(index)
             
             for f, frame in enumerate(video):
