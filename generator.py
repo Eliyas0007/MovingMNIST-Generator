@@ -70,7 +70,6 @@ class Generator():
 
         else:
             
-            print(self.step)
             margin_f = self.step * self._iters[iter_index]
             margin_b = margin_f + 28
 
@@ -197,5 +196,5 @@ class Generator():
         for f, frame in enumerate(video):
             frame = rearrange(frame, 'c h w -> h w c')
             cv2.imshow(f'example {index}', frame)
-            cv2.waitKey(1)
+            cv2.waitKey(150)
             cv2.imwrite(f'./GeneratedExample/example{f}.png', frame * 256)

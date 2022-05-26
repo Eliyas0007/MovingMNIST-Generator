@@ -32,9 +32,9 @@ if __name__ == '__main__':
             default is current directory which is '.'
     '''
     generator = Generator(
-                        frame_len = 5000,
+                        frame_len = 22,
                         step = 1,
-                        direction = 'circular',
+                        direction = 'horizontal',
                         acceleration = 1,
                         num_digits = 1,
                         canvas_size=512,
