@@ -4,7 +4,6 @@ import tqdm
 import math
 import glob
 import numpy
-import random
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
