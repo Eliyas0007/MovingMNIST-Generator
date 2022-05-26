@@ -13,8 +13,11 @@ This is a really handy tool for generating customized MovingMNIST dataset. It us
 
 
 ## Supported Features
+
+- Circular movement **New!**
+- Speed acceleration **New!**
+- Customizable image size **New!**
 - Linear movement with constant velocity
-- Circular movement **(New!)**
 - Up to 3 digit movement
 
 ## Tested Environment
@@ -34,6 +37,5 @@ $ python main.py
 
 ## Coming Soon...
 - Custimizible starting location
-- Non-linear Velocity
 
 **If you feel this repo is useful please hit the star and let others to know! Thank you!**
