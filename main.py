@@ -14,7 +14,7 @@ if __name__ == '__main__':
             default is 4
 
         direction: 
-            how the digit will move, we provide 3 types of direction which is vertical,
+            how the digit will move, we provide 4 types of direction which is vertical,
                                                                               horizontal,
                                                                               diagonal,
                                                                               circular
