@@ -1,5 +1,5 @@
 # MovingMNIST-Generator
-This is a really handy tool for generating customized MovingMNIST dataset. It used MNIST dataset to generate MovingMNIST dataset. Examples are shown below
+This is a really handy tool for generating customized MovingMNIST dataset. It uses MNIST dataset to generate MovingMNIST dataset. Examples are shown below
 
 - Examples
 <p align="center">
@@ -14,9 +14,9 @@ This is a really handy tool for generating customized MovingMNIST dataset. It us
 
 ## Supported Features
 
-- Circular movement **New!**
-- Speed acceleration **New!**
-- Customizable image size **New!**
+- Circular movement 
+- Speed acceleration 
+- Customizable image size
 - Linear movement with constant velocity
 - Up to 3 digit movement
 
@@ -35,7 +35,5 @@ Open the terminal at the directory of this repo and simply type in:
 $ python main.py
 ```
 
-## Coming Soon...
-- Custimizible starting location
 
 **If you feel this repo is useful please hit the star and let others to know! Thank you!**
