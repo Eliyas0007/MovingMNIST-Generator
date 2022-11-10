@@ -4,6 +4,7 @@ import tqdm
 import math
 import glob
 import numpy
+import random
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
@@ -45,7 +46,6 @@ class Generator():
 
         self._iters = []
         self._is_forwards = []
-        self._is_first_frame = True
 
         self._dataset = datasets.MNIST(root='MNISTDATA/', train=False, download=True, transform=transforms.Compose([
                                     transforms.ToTensor(),
@@ -58,10 +58,10 @@ class Generator():
 
         if self.direction == 'circular':
             radius = (self.canvas_size/2) - 14
-            angle = (1/360)
+            angle = (20/360)
             origin = self.canvas_size/2
             x = radius * math.sin(self._iters[iter_index] * math.pi * angle) + origin
-            y = radius * math.cos(self._iters[iter_index] * math.pi * angle) + origin
+            y = radius * math.cos(self._iters[iter_index] * math.pi * angle)+ origin
 
             canvas[:, int(x)-14:int(x)+14, int(y)-14:int(y)+14] += image
             self._iters[iter_index] += 1
@@ -119,18 +119,27 @@ class Generator():
             
             self._iters = []
             self.step = 1
-            video = self._make_video(index)
+            video, separated = self._make_video(index)
             
             for f, frame in enumerate(video):
-                frame = rearrange(frame, 'c h w -> h w c')
-                image_path = root_path + video_path + f'/frame{f}.png'
-                cv2.imwrite(image_path, frame * 256)
+                frame_o = rearrange(frame, 'c h w -> h w c')
+                frame_s1 = rearrange(separated[0][f], 'c h w -> h w c')
+                frame_s2 = rearrange(separated[1][f], 'c h w -> h w c')
+                image_path_o = root_path + video_path + f'/frame_o_{f}.png'
+                image_path_s1 = root_path + video_path + f'/frame_s1_{f}.png'
+                image_path_s2 = root_path + video_path + f'/frame_s2_{f}.png'
+                cv2.imwrite(image_path_o, frame_o * 256)
+                cv2.imwrite(image_path_s1, frame_s1 * 256)
+                cv2.imwrite(image_path_s2, frame_s2 * 256)
     
     
     def _make_video(self, index):
 
         video = []
         images = []
+
+        separated = [[], []]
+
         is_continue = False
 
         for i in range(self.num_digits):
@@ -142,17 +151,14 @@ class Generator():
 
             image = image.cpu().detach().numpy()
             images.append(image)
-            self._iters.append(i * 10)
+            self._iters.append(i * random.randint(5, 20) + random.randint(25, 50))
             self._is_forwards.append(True)
     
             
         f = 0
         b = 0
         while f < self.frame_len:
-            if f == 0:
-                self._is_first_frame = True
-            elif f > 0 :
-                self._is_first_frame = False
+
             canvas = numpy.zeros((1, self.canvas_size, self.canvas_size))
             for i, image in enumerate(images):
                 y = i * 32
@@ -166,6 +172,9 @@ class Generator():
                     is_continue = True
                     continue
                 else:
+                    # cv2.imshow(f'{i}', new)
+                    # cv2.waitKey(1000)
+                    separated[i].append(new)
                     canvas += new
 
             if is_continue:
@@ -179,7 +188,7 @@ class Generator():
             f += 1
             b += 1
 
-        return video
+        return video, separated
 
 
     def show_example(self, index: int):
@@ -193,10 +202,13 @@ class Generator():
                     print("Error while deleting file : ", path)
 
 
-        video = self._make_video(index)
+        video, separated = self._make_video(index)
 
         for f, frame in enumerate(video):
             frame = rearrange(frame, 'c h w -> h w c')
-            cv2.imshow(f'example {index}', frame)
+            frame1 = rearrange(separated[0][f], 'c h w -> h w c')
+            frame2 = rearrange(separated[1][f], 'c h w -> h w c')
+            cv2.imshow(f'example {index}', numpy.concatenate((frame, frame1, frame2), axis=1))
+
             cv2.waitKey(150)
             cv2.imwrite(f'./GeneratedExample/example{f}.png', frame * 256)

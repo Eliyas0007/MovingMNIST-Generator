@@ -20,11 +20,18 @@ if __name__ == '__main__':
                                                                               circular
             default is vertical
 
+        acceleration:
+            adds non-linearity to the movement of digits
+
         num_digits:
             determine the numbers of appearing digits maximum 2 in vertical or horizontal direction,
                                                               3 in diagonal direction,
                                                               technically infinite numbers for this one but we recommend no more than 4
             default is 1
+
+        canvas_size:
+            it determines the size of frames
+            default is 64
                                         
         generation_path:
             for saving generated dataset
@@ -32,13 +39,13 @@ if __name__ == '__main__':
             default is current directory which is '.'
     '''
     generator = Generator(
-                        frame_len = 7,
-                        step = 1,
-                        direction = 'horizontal',
-                        acceleration = 1,
-                        num_digits = 1,
+                        frame_len = 20,
+                        step = 4,
+                        direction = 'circular',
+                        acceleration = 0,
+                        num_digits = 2,
                         canvas_size=64,
                         generation_path = '.')
 
-    # generator.show_example(random.randrange(0, 10000))
-    generator.generate()
+    generator.show_example(random.randrange(0, 10000))
+    # generator.generate()
