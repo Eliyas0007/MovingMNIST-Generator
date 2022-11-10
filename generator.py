@@ -151,7 +151,7 @@ class Generator():
 
             image = image.cpu().detach().numpy()
             images.append(image)
-            self._iters.append(i * random.randint(5, 20) + random.randint(25, 50))
+            self._iters.append(i * random.randint(1, 100) + random.randint(1, 100))
             self._is_forwards.append(True)
     
             
@@ -172,8 +172,6 @@ class Generator():
                     is_continue = True
                     continue
                 else:
-                    # cv2.imshow(f'{i}', new)
-                    # cv2.waitKey(1000)
                     separated[i].append(new)
                     canvas += new
 
