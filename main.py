@@ -39,13 +39,14 @@ if __name__ == '__main__':
             default is current directory which is '.'
     '''
     generator = Generator(
-                        frame_len = 20,
-                        step = 4,
-                        direction = 'circular',
-                        acceleration = 0,
-                        num_digits = 2,
+                        frame_len=20,
+                        step=4,
+                        direction='horizontal',
+                        acceleration=0,
+                        num_digits=2,
+                        zoom=True,
                         canvas_size=64,
-                        generation_path = '.')
+                        generation_path='.')
 
     generator.show_example(random.randrange(0, 10000))
     # generator.generate()

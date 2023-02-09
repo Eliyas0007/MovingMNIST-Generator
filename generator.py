@@ -19,6 +19,7 @@ class Generator():
                 direction = 'vertical',
                 acceleration = 1,
                 num_digits = 2,
+                zoom = True,
                 canvas_size=512,
                 generation_path = '.'):
         
@@ -41,20 +42,39 @@ class Generator():
         self.acceleration = acceleration
         self.frame_len = frame_len
         self.num_digits = num_digits
+        self.zoom = zoom
         self.canvas_size = canvas_size
         self.generation_path = generation_path
 
         self._iters = []
         self._is_forwards = []
+        self._zooms = []
+        self._zoom_directions = []
 
         self._dataset = datasets.MNIST(root='MNISTDATA/', train=False, download=True, transform=transforms.Compose([
                                     transforms.ToTensor(),
                                     ]))
 
 
-    def _move_image(self, image, initial_position=(0, 0), iter_index=0):
+    def _move_image(self, image, initial_position=(0, 0), iter_index=0, spin_direction=0):
 
         canvas = numpy.zeros((1, self.canvas_size, self.canvas_size))
+        _, h, w = image.shape
+        
+        if self.zoom:
+            if self._zoom_directions[iter_index]:
+                if self._zooms[iter_index] < (h/2) + 2:
+                    self._zoom_directions[iter_index] = False
+                self._zooms[iter_index] -= 2
+            else:
+                if self._zooms[iter_index] > 26:
+                    self._zoom_directions[iter_index] = True
+                self._zooms[iter_index] += 2
+
+            image = cv2.resize(rearrange(image, 'c h w -> (c h) w'), (self._zooms[iter_index], self._zooms[iter_index]))
+            image = rearrange(image, '(c h) w -> c h w', c=1)
+        _, h, w = image.shape
+                
 
         if self.direction == 'circular':
             radius = (self.canvas_size/2) - 14
@@ -63,7 +83,12 @@ class Generator():
             x = radius * math.sin(self._iters[iter_index] * math.pi * angle) + origin
             y = radius * math.cos(self._iters[iter_index] * math.pi * angle)+ origin
 
-            canvas[:, int(x)-14:int(x)+14, int(y)-14:int(y)+14] += image
+            # controlling the clockwise and anti-clockwise 
+            if spin_direction == 0:
+                canvas[:, int(x)-int(h/2):int(x)+int(w/2), int(y)-int(h/2):int(y)+int(w/2)] += image
+            else:
+                canvas[:, int(y)-int(h/2):int(y)+int(w/2), int(x)-int(h/2):int(x)+int(w/2)] += image
+
             self._iters[iter_index] += 1
 
             return canvas
@@ -71,11 +96,12 @@ class Generator():
         else:
             
             margin_f = self.step * self._iters[iter_index]
-            margin_b = margin_f + 28
+            margin_b = margin_f + h
+            
 
             if self._is_forwards[iter_index]:
                 self._iters[iter_index] += 1
-                if margin_b > self.canvas_size - 4:
+                if margin_b >= self.canvas_size - 4:
                     self._is_forwards[iter_index] = False
                     self._iters[iter_index] -= 2
                     return
@@ -86,12 +112,11 @@ class Generator():
                     self._iters[iter_index] += 2
                     return
 
-
             if self.direction == 'vertical':
-                canvas[:, margin_f:margin_b, 0+initial_position[0]:28+initial_position[0]] += image
+                canvas[:, margin_f:margin_b, 0+initial_position[0]:h+initial_position[0]] += image
 
             elif self.direction == 'horizontal':
-                canvas[:, 0+initial_position[0]:28+initial_position[0], margin_f:margin_b] += image
+                canvas[:, 0+initial_position[0]:h+initial_position[0], margin_f:margin_b] += image
 
             elif self.direction == 'diagonal':
                 canvas[:, margin_f:margin_b, margin_f:margin_b] += image
@@ -140,8 +165,6 @@ class Generator():
 
         separated = [[], []]
 
-        is_continue = False
-
         for i in range(self.num_digits):
 
             if index >= (len(self._dataset)-self.num_digits):
@@ -151,41 +174,46 @@ class Generator():
 
             image = image.cpu().detach().numpy()
             images.append(image)
-            self._iters.append(i * random.randint(1, 100) + random.randint(1, 100))
-            self._is_forwards.append(True)
-    
-            
-        f = 0
-        b = 0
-        while f < self.frame_len:
+            if self.direction == 'circular':
+                self._iters.append(i * random.randint(1, 100) + random.randint(1, 100))
+                self._zooms.append(random.randint(7, 14) * 2)
+            else:
+                self._iters.append(i * 10)
+                self._zooms.append(random.randint(14, 28))
 
-            canvas = numpy.zeros((1, self.canvas_size, self.canvas_size))
+            self._is_forwards.append(True)
+            self._zoom_directions.append(True)
+            
+        spin_direction = random.randint(0, 1)
+
+        done = False
+        while done is not True:         
             for i, image in enumerate(images):
                 y = i * 32
-                x = i * 35
-                new = self._move_image(image, (y, x), i)
+                x = i * 32
+                new = self._move_image(image, (y, x), i, spin_direction)
                 
                 if new is None:
-                    if f == 0:
-                        continue
-                    f -= 1
-                    is_continue = True
-                    continue
+                    ...
                 else:
-                    separated[i].append(new)
-                    canvas += new
+                    if len(separated[i]) < self.frame_len:
+                        separated[i].append(new)
+            
+            for k, sep_seq in enumerate(separated):
+                if len(sep_seq) < self.frame_len:
+                    done = False
+                    break
+                done = True
 
-            if is_continue:
-                is_continue = False
-                continue
+            if done:
+                for f in range(self.frame_len):
+                    canvas = numpy.zeros((1, self.canvas_size, self.canvas_size))
+                    for n in range(self.num_digits):
+                        print(n, f)
+                        canvas += separated[n][f]
+                    video.append(canvas)        
 
-            if b == self.frame_len:
-                break
-
-            video.append(canvas)
-            f += 1
-            b += 1
-
+        print(len(video), len(separated[0]), len(separated[1]))
         return video, separated
 
 
