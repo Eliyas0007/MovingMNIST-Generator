@@ -50,13 +50,16 @@ class Generator():
         self._is_forwards = []
         self._zooms = []
         self._zoom_directions = []
+        self._initial_positions = []
 
         self._dataset = datasets.MNIST(root='MNISTDATA/', train=False, download=True, transform=transforms.Compose([
                                     transforms.ToTensor(),
                                     ]))
 
 
-    def _move_image(self, image, initial_position=(0, 0), iter_index=0, spin_direction=0):
+    def _move_image(self, image, initial_positions, iter_index=0, spin_direction=0):
+
+        # print(initial_position)
 
         canvas = numpy.zeros((1, self.canvas_size, self.canvas_size))
         _, h, w = image.shape
@@ -67,23 +70,23 @@ class Generator():
                     self._zoom_directions[iter_index] = False
                 self._zooms[iter_index] -= 2
             else:
-                if self._zooms[iter_index] > 26:
+                if self._zooms[iter_index] > 24:
                     self._zoom_directions[iter_index] = True
                 self._zooms[iter_index] += 2
 
             image = cv2.resize(rearrange(image, 'c h w -> (c h) w'), (self._zooms[iter_index], self._zooms[iter_index]))
             image = rearrange(image, '(c h) w -> c h w', c=1)
         _, h, w = image.shape
-                
+
 
         if self.direction == 'circular':
-            radius = (self.canvas_size/2) - 14
-            angle = (20/360)
-            origin = self.canvas_size/2
+            radius = (self.canvas_size // 2) - 14
+            angle = (20 // 360)
+            origin = self.canvas_size // 2
             x = radius * math.sin(self._iters[iter_index] * math.pi * angle) + origin
-            y = radius * math.cos(self._iters[iter_index] * math.pi * angle)+ origin
+            y = radius * math.cos(self._iters[iter_index] * math.pi * angle) + origin
 
-            # controlling the clockwise and anti-clockwise 
+            # controlling the clockwise and anti-clockwise movement
             if spin_direction == 0:
                 canvas[:, int(x)-int(h/2):int(x)+int(w/2), int(y)-int(h/2):int(y)+int(w/2)] += image
             else:
@@ -95,31 +98,37 @@ class Generator():
 
         else:
             
-            margin_f = self.step * self._iters[iter_index]
+            margin_f = self.step * self._iters[iter_index] + self._initial_positions[iter_index][0]
             margin_b = margin_f + h
+
+            # print(margin_f, margin_b, self._iters[iter_index], self.step, self.canvas_size)
             
 
             if self._is_forwards[iter_index]:
                 self._iters[iter_index] += 1
-                if margin_b >= self.canvas_size - 4:
+                if margin_b >= self.canvas_size:
                     self._is_forwards[iter_index] = False
-                    self._iters[iter_index] -= 2
-                    return
+                    self._iters[iter_index] -= 1
+                    # return
             else:
                 self._iters[iter_index] -= 1
                 if margin_f < 0:
                     self._is_forwards[iter_index] = True
-                    self._iters[iter_index] += 2
-                    return
+                    self._iters[iter_index] += 1
+                    # return
 
-            if self.direction == 'vertical':
-                canvas[:, margin_f:margin_b, 0+initial_position[0]:h+initial_position[0]] += image
+            if margin_b <= 64 and margin_f > 0:
+                y = self._initial_positions[iter_index][0]
+                if self.direction == 'vertical':
+                    canvas[:, margin_f:margin_b, y:h+y] += image
 
-            elif self.direction == 'horizontal':
-                canvas[:, 0+initial_position[0]:h+initial_position[0], margin_f:margin_b] += image
+                elif self.direction == 'horizontal':
+                    print(margin_f, margin_b, self._iters[iter_index])
+                    canvas[:, y:h+y, margin_f:margin_b] += image
 
-            elif self.direction == 'diagonal':
-                canvas[:, margin_f:margin_b, margin_f:margin_b] += image
+                elif self.direction == 'diagonal':
+                    canvas[:, margin_f:margin_b, margin_f:margin_b] += image
+            else: return
 
             self.step += self.acceleration
 
@@ -129,7 +138,7 @@ class Generator():
     def generate(self):
 
         try:
-            root_path = self.generation_path + f'/data_{self.direction}_{self.num_digits}digits_{self.canvas_size}size_{self.acceleration}ac'
+            root_path = self.generation_path + f'/data_Z_{self.direction}_{self.num_digits}digits_{self.canvas_size}size_{self.acceleration}ac'
             os.mkdir(root_path)
         except FileExistsError:
             ...
@@ -178,8 +187,9 @@ class Generator():
                 self._iters.append(i * random.randint(1, 100) + random.randint(1, 100))
                 self._zooms.append(random.randint(7, 14) * 2)
             else:
-                self._iters.append(i * 10)
+                self._iters.append(i * random.randint(0, 30))
                 self._zooms.append(random.randint(14, 28))
+                self._initial_positions.append((random.randint(0, 64-28), random.randint(0, 64-28)))
 
             self._is_forwards.append(True)
             self._zoom_directions.append(True)
@@ -187,7 +197,7 @@ class Generator():
         spin_direction = random.randint(0, 1)
 
         done = False
-        while done is not True:         
+        while done is not True:
             for i, image in enumerate(images):
                 y = i * 32
                 x = i * 32
@@ -209,11 +219,9 @@ class Generator():
                 for f in range(self.frame_len):
                     canvas = numpy.zeros((1, self.canvas_size, self.canvas_size))
                     for n in range(self.num_digits):
-                        print(n, f)
                         canvas += separated[n][f]
                     video.append(canvas)        
 
-        print(len(video), len(separated[0]), len(separated[1]))
         return video, separated
 
 
