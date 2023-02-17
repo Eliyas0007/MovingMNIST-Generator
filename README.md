@@ -14,11 +14,14 @@ This is a really handy tool for generating customized MovingMNIST dataset. It us
 
 ## Supported Features
 
+- Customizable size of the dataset
+- Random positions of digits
+- Zoom-in or zoom-out the digit when it is moving
 - Circular movement 
 - Speed acceleration 
 - Customizable image size
 - Linear movement with constant velocity
-- Up to 3 digit movement
+- Up to 2 digit movement
 
 ## Tested Environment
 
