@@ -21,6 +21,7 @@ class Generator():
                 num_digits = 2,
                 zoom = True,
                 canvas_size=512,
+                num_of_videos=10000,
                 generation_path = '.'):
         
         '''
@@ -44,6 +45,7 @@ class Generator():
         self.num_digits = num_digits
         self.zoom = zoom
         self.canvas_size = canvas_size
+        self.num_of_videos = num_of_videos
         self.generation_path = generation_path
 
         self._iters = []
@@ -123,7 +125,6 @@ class Generator():
                     canvas[:, margin_f:margin_b, y:h+y] += image
 
                 elif self.direction == 'horizontal':
-                    print(margin_f, margin_b, self._iters[iter_index])
                     canvas[:, y:h+y, margin_f:margin_b] += image
 
                 elif self.direction == 'diagonal':
@@ -143,7 +144,7 @@ class Generator():
         except FileExistsError:
             ...
 
-        for index in tqdm.tqdm(range(len(self._dataset))):
+        for index in tqdm.tqdm(range(self.num_of_videos)):
             
             try:
                 video_path = f'/video{index}'
@@ -152,8 +153,7 @@ class Generator():
                 ...
             
             self._iters = []
-            self.step = 1
-            video, separated = self._make_video(index)
+            video, separated = self._make_video()
             
             for f, frame in enumerate(video):
                 frame_o = rearrange(frame, 'c h w -> h w c')
@@ -167,7 +167,7 @@ class Generator():
                 cv2.imwrite(image_path_s2, frame_s2 * 256)
     
     
-    def _make_video(self, index):
+    def _make_video(self):
 
         video = []
         images = []
@@ -176,10 +176,7 @@ class Generator():
 
         for i in range(self.num_digits):
 
-            if index >= (len(self._dataset)-self.num_digits):
-                image, _ = self._dataset[index+i - len(self._dataset)]
-            else:
-                image, _ = self._dataset[index+i]
+            image, _ = self._dataset[random.randint(0, len(self._dataset)-1)]
 
             image = image.cpu().detach().numpy()
             images.append(image)
@@ -209,7 +206,7 @@ class Generator():
                     if len(separated[i]) < self.frame_len:
                         separated[i].append(new)
             
-            for k, sep_seq in enumerate(separated):
+            for _, sep_seq in enumerate(separated):
                 if len(sep_seq) < self.frame_len:
                     done = False
                     break
@@ -236,7 +233,7 @@ class Generator():
                     print("Error while deleting file : ", path)
 
 
-        video, separated = self._make_video(index)
+        video, separated = self._make_video()
 
         for f, frame in enumerate(video):
             frame = rearrange(frame, 'c h w -> h w c')
