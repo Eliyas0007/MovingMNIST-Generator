@@ -16,7 +16,7 @@ class Generator():
     def __init__(self, 
                 frame_len = 20,
                 step = 1,
-                direction = 'vertical',
+                direction = 'circular',
                 acceleration = 1,
                 num_digits = 2,
                 zoom = True,
@@ -83,10 +83,11 @@ class Generator():
 
         if self.direction == 'circular':
             radius = (self.canvas_size // 2) - 14
-            angle = (20 // 360)
+            angle = (20 / 360)
             origin = self.canvas_size // 2
             x = radius * math.sin(self._iters[iter_index] * math.pi * angle) + origin
             y = radius * math.cos(self._iters[iter_index] * math.pi * angle) + origin
+            # print(self._iters[iter_index], math.pi, angle, origin)
 
             # controlling the clockwise and anti-clockwise movement
             if spin_direction == 0:
@@ -239,7 +240,7 @@ class Generator():
             frame = rearrange(frame, 'c h w -> h w c')
             frame1 = rearrange(separated[0][f], 'c h w -> h w c')
             frame2 = rearrange(separated[1][f], 'c h w -> h w c')
-            cv2.imshow(f'example {index}', numpy.concatenate((frame, frame1, frame2), axis=1))
+            # cv2.imshow(f'example {index}', numpy.concatenate((frame, frame1, frame2), axis=1))
 
-            cv2.waitKey(150)
+            # cv2.waitKey(150)
             cv2.imwrite(f'./GeneratedExample/example{f}.png', frame * 256)
