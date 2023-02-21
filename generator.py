@@ -195,8 +195,8 @@ class Generator():
                 self._zooms.append(random.randint(14, 28))
                 self._initial_positions.append(random.randint(0, 64-28))
 
-            self._is_forwards.append(True)
-            self._zoom_directions.append(True)
+            self._is_forwards.append(random.getrandbits(1))
+            self._zoom_directions.append(random.getrandbits(1))
             
         spin_direction = random.randint(0, 1)
 
