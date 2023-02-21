@@ -41,13 +41,13 @@ if __name__ == '__main__':
     generator = Generator(
                         frame_len=20,
                         step=3,
-                        direction='circular',
+                        direction='vertical',
                         acceleration=0,
                         num_digits=2,
                         zoom=False,
                         canvas_size=64,
-                        num_of_videos=50000,
+                        num_of_videos=100,
                         generation_path='.')
 
-    generator.show_example(random.randrange(0, 10000))
+    generator.show_example()
     # generator.generate()

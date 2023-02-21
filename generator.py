@@ -59,7 +59,7 @@ class Generator():
                                     ]))
 
 
-    def _move_image(self, image, initial_positions, iter_index=0, spin_direction=0):
+    def _move_image(self, image, iter_index=0, spin_direction=0):
 
         # print(initial_position)
 
@@ -100,8 +100,7 @@ class Generator():
             return canvas
 
         else:
-            
-            margin_f = self.step * self._iters[iter_index] + self._initial_positions[iter_index][0]
+            margin_f = self.step * self._iters[iter_index] + self._initial_positions[iter_index]
             margin_b = margin_f + h
 
             # print(margin_f, margin_b, self._iters[iter_index], self.step, self.canvas_size)
@@ -121,7 +120,7 @@ class Generator():
                     # return
 
             if margin_b <= 64 and margin_f > 0:
-                y = self._initial_positions[iter_index][0]
+                y = self._initial_positions[iter_index]
                 if self.direction == 'vertical':
                     canvas[:, margin_f:margin_b, y:h+y] += image
 
@@ -175,19 +174,26 @@ class Generator():
 
         separated = [[], []]
 
+        self._zooms = []
+        self._iters = []
+        self._is_forwards = []
+        self._zoom_directions = []
+        self._initial_positions = []
+
         for i in range(self.num_digits):
 
             image, _ = self._dataset[random.randint(0, len(self._dataset)-1)]
 
             image = image.cpu().detach().numpy()
             images.append(image)
+
             if self.direction == 'circular':
                 self._iters.append(i * random.randint(1, 100) + random.randint(1, 100))
                 self._zooms.append(random.randint(7, 14) * 2)
             else:
-                self._iters.append(i * random.randint(0, 30))
+                self._iters.append(i * random.randint(0, 31))
                 self._zooms.append(random.randint(14, 28))
-                self._initial_positions.append((random.randint(0, 64-28), random.randint(0, 64-28)))
+                self._initial_positions.append(random.randint(0, 64-28))
 
             self._is_forwards.append(True)
             self._zoom_directions.append(True)
@@ -197,9 +203,7 @@ class Generator():
         done = False
         while done is not True:
             for i, image in enumerate(images):
-                y = i * 32
-                x = i * 32
-                new = self._move_image(image, (y, x), i, spin_direction)
+                new = self._move_image(image, i, spin_direction)
                 
                 if new is None:
                     ...
@@ -223,7 +227,7 @@ class Generator():
         return video, separated
 
 
-    def show_example(self, index: int):
+    def show_example(self):
 
         old_images_paths = glob.glob('./GeneratedExample/*.png')
         if len(old_images_paths) > 0:
@@ -243,4 +247,6 @@ class Generator():
             # cv2.imshow(f'example {index}', numpy.concatenate((frame, frame1, frame2), axis=1))
 
             # cv2.waitKey(150)
+            try: os.mkdir('./GeneratedExample')
+            except FileExistsError: pass
             cv2.imwrite(f'./GeneratedExample/example{f}.png', frame * 256)
