@@ -1,4 +1,3 @@
-import random
 from generator import Generator
 
 if __name__ == '__main__':
@@ -38,16 +37,20 @@ if __name__ == '__main__':
 
             default is current directory which is '.'
     '''
-    generator = Generator(
-                        frame_len=20,
+    directions = ['vertical']#, 'horizontal', 'circular']
+
+    for d in directions:
+        generator = Generator(
+                        frame_len=50,
                         step=3,
-                        direction='vertical',
+                        direction=d,
                         acceleration=0,
                         num_digits=2,
-                        zoom=False,
+                        zoom=True,
+                        rotate=True,
                         canvas_size=64,
-                        num_of_videos=100,
-                        generation_path='.')
+                        num_of_videos=40000,
+                        generation_path='./rotation_train/')
 
-    generator.show_example()
-    # generator.generate()
+        generator.show_example()
+        # generator.generate()

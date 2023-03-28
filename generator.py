@@ -5,6 +5,7 @@ import math
 import glob
 import numpy
 import random
+import imutils
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
@@ -20,6 +21,7 @@ class Generator():
                 acceleration = 1,
                 num_digits = 2,
                 zoom = True,
+                rotate=True,
                 canvas_size=512,
                 num_of_videos=10000,
                 generation_path = '.'):
@@ -44,6 +46,7 @@ class Generator():
         self.frame_len = frame_len
         self.num_digits = num_digits
         self.zoom = zoom
+        self.rotate = rotate
         self.canvas_size = canvas_size
         self.num_of_videos = num_of_videos
         self.generation_path = generation_path
@@ -60,8 +63,6 @@ class Generator():
 
 
     def _move_image(self, image, iter_index=0, spin_direction=0):
-
-        # print(initial_position)
 
         canvas = numpy.zeros((1, self.canvas_size, self.canvas_size))
         _, h, w = image.shape
@@ -139,7 +140,7 @@ class Generator():
     def generate(self):
 
         try:
-            root_path = self.generation_path + f'/data_Z_{self.direction}_{self.num_digits}digits_{self.canvas_size}size_{self.acceleration}ac'
+            root_path = self.generation_path + f'/data_{self.direction}_{self.num_digits}digits_{self.canvas_size}size_{self.frame_len}f_rotate{1 if self.rotate else 0}'
             os.mkdir(root_path)
         except FileExistsError:
             ...
@@ -148,7 +149,13 @@ class Generator():
             
             try:
                 video_path = f'/video{index}'
+                video_original_path = video_path + '/original'
+                video_s1_path = video_path + '/s1'
+                video_s2_path = video_path + '/s2'
                 os.mkdir(root_path + video_path)
+                os.mkdir(root_path + video_original_path)
+                os.mkdir(root_path + video_s1_path)
+                os.mkdir(root_path + video_s2_path)
             except FileExistsError:
                 ...
             
@@ -159,12 +166,12 @@ class Generator():
                 frame_o = rearrange(frame, 'c h w -> h w c')
                 frame_s1 = rearrange(separated[0][f], 'c h w -> h w c')
                 frame_s2 = rearrange(separated[1][f], 'c h w -> h w c')
-                image_path_o = root_path + video_path + f'/frame_o_{f}.png'
-                image_path_s1 = root_path + video_path + f'/frame_s1_{f}.png'
-                image_path_s2 = root_path + video_path + f'/frame_s2_{f}.png'
-                cv2.imwrite(image_path_o, frame_o * 256)
-                cv2.imwrite(image_path_s1, frame_s1 * 256)
-                cv2.imwrite(image_path_s2, frame_s2 * 256)
+                image_path_o = root_path + video_original_path + f'/frame_o_{f}.png'
+                image_path_s1 = root_path + video_s1_path + f'/frame_s1_{f}.png'
+                image_path_s2 = root_path + video_s2_path + f'/frame_s2_{f}.png'
+                cv2.imwrite(image_path_o, frame_o * 255)
+                cv2.imwrite(image_path_s1, frame_s1 * 255)
+                cv2.imwrite(image_path_s2, frame_s2 * 255)
     
     
     def _make_video(self):
@@ -173,6 +180,8 @@ class Generator():
         images = []
 
         separated = [[], []]
+        spin_directions = []
+        rotate_direction = []
 
         self._zooms = []
         self._iters = []
@@ -197,19 +206,27 @@ class Generator():
 
             self._is_forwards.append(random.getrandbits(1))
             self._zoom_directions.append(random.getrandbits(1))
-            
-        spin_direction = random.randint(0, 1)
+            spin_directions.append(random.randint(0, 1))
+            rotate_direction.append(1 if random.randint(0, 1) else -1)
 
         done = False
+        degree_count = 1
         while done is not True:
             for i, image in enumerate(images):
-                new = self._move_image(image, i, spin_direction)
+                if self.rotate is True:
+                    image = rearrange(image, 'c h w -> h w c')
+                    image = self._rotate_image(image, degree_count * rotate_direction[i] * 5)
+                    image = rearrange(image, '(c h) w -> c h w', c=1)
+
+                new = self._move_image(image, i, spin_directions[i])
                 
                 if new is None:
                     ...
                 else:
                     if len(separated[i]) < self.frame_len:
                         separated[i].append(new)
+                        degree_count += 1
+                        
             
             for _, sep_seq in enumerate(separated):
                 if len(sep_seq) < self.frame_len:
@@ -222,9 +239,27 @@ class Generator():
                     canvas = numpy.zeros((1, self.canvas_size, self.canvas_size))
                     for n in range(self.num_digits):
                         canvas += separated[n][f]
-                    video.append(canvas)        
+                    video.append(canvas)
 
         return video, separated
+
+
+    def _rotate_image(self, image, angle):
+
+        # Get the image dimensions
+        # (h, w) = image.shape[:2]
+        # print(image.shape)
+        # Define the rotation center
+        center = (14, 14)
+
+        # Get the rotation matrix
+        M = cv2.getRotationMatrix2D(center, angle, 1.0)
+
+        # Apply the rotation to the image
+        rotated = cv2.warpAffine(image, M, (28, 28))
+        # print(rotated.shape)
+
+        return rotated
 
 
     def show_example(self):
@@ -244,9 +279,9 @@ class Generator():
             frame = rearrange(frame, 'c h w -> h w c')
             frame1 = rearrange(separated[0][f], 'c h w -> h w c')
             frame2 = rearrange(separated[1][f], 'c h w -> h w c')
-            # cv2.imshow(f'example {index}', numpy.concatenate((frame, frame1, frame2), axis=1))
+            cv2.imshow(f'example', numpy.concatenate((frame, frame1, frame2), axis=1))
 
-            # cv2.waitKey(150)
+            cv2.waitKey(150)
             try: os.mkdir('./GeneratedExample')
             except FileExistsError: pass
             cv2.imwrite(f'./GeneratedExample/example{f}.png', frame * 256)
