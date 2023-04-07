@@ -8,6 +8,8 @@ This is a really handy tool for generating customized MovingMNIST dataset. It us
     <img width="120" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/diagonal_example.gif" alt="Diagonal Example">
     <img width="120" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/circular_1_digit.gif" alt="Circular Example 1">
     <img width="120" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/circular_2_digits.gif" alt="Circular Example 2">
+    <img width="120" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/rotation_and_zooming_example.gif" alt="zooming example">
+    <img width="120" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/rotation_example.gif" alt="rotation example">
     
 </p>
 
