@@ -16,6 +16,7 @@ This is a really handy tool for generating customized MovingMNIST dataset. It us
 
 ## Supported Features
 
+- Rotation 🔥**NEW**🔥
 - Customizable size of the dataset
 - Random positions of digits
 - Zoom-in or zoom-out the digit when it is moving
