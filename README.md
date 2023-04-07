@@ -13,6 +13,9 @@ This is a really handy tool for generating customized MovingMNIST dataset. It us
     
 </p>
 
+## Comming Soon
+
+- Collision between digits
 
 ## Supported Features
 
