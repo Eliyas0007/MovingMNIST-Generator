@@ -47,10 +47,10 @@ if __name__ == '__main__':
                         acceleration=0,
                         num_digits=2,
                         zoom=True,
-                        rotate=True,
+                        rotate=False,
                         canvas_size=64,
-                        num_of_videos=40000,
-                        generation_path='./rotation_train/')
+                        num_of_videos=200000,
+                        generation_path='./train/')
 
         generator.show_example()
         # generator.generate()
