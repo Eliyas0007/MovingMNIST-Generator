@@ -182,6 +182,7 @@ class Generator():
         separated = [[], []]
         spin_directions = []
         rotate_direction = []
+        initial_degrees = []
 
         self._zooms = []
         self._iters = []
@@ -208,14 +209,15 @@ class Generator():
             self._zoom_directions.append(random.getrandbits(1))
             spin_directions.append(random.randint(0, 1))
             rotate_direction.append(1 if random.randint(0, 1) else -1)
+            initial_degrees.append(random.randint(1, 72))
 
         done = False
-        degree_count = 1
+        
         while done is not True:
             for i, image in enumerate(images):
                 if self.rotate is True:
                     image = rearrange(image, 'c h w -> h w c')
-                    image = self._rotate_image(image, degree_count * rotate_direction[i] * 5)
+                    image = self._rotate_image(image, initial_degrees[i] * rotate_direction[i] * 5)
                     image = rearrange(image, '(c h) w -> c h w', c=1)
 
                 new = self._move_image(image, i, spin_directions[i])
@@ -225,8 +227,7 @@ class Generator():
                 else:
                     if len(separated[i]) < self.frame_len:
                         separated[i].append(new)
-                        degree_count += 1
-                        
+                        initial_degrees[i] += 1
             
             for _, sep_seq in enumerate(separated):
                 if len(sep_seq) < self.frame_len:
