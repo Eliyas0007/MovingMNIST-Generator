@@ -14,12 +14,12 @@ This is a really handy tool for generating customized MovingMNIST dataset. It us
 </p>
 
 ## Comming Soon
+- Since refactoring is still in process, rotation and circular movement will be back soon
 
-- Collision between digits
 
 ## Supported Features
 
-- Rotation 🔥**NEW**🔥
+- Collision between digits 🔥**NEW**🔥
 - Customizable size of the dataset
 - Random positions of digits
 - Zoom-in or zoom-out the digit when it is moving

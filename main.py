@@ -1,4 +1,3 @@
-# from generator import Generator
 from Generator import Generator
 
 if __name__ == '__main__':
@@ -40,14 +39,14 @@ if __name__ == '__main__':
     generator = Generator( 
                  frame_length=20,
                  step=2,
-                 canvas_size=(64, 64),
+                 canvas_size=(64, 32),
                  num_digits=2,
                  collision=True,
-                 direction='random',
-                 rotate_digits=False,
-                 zoom_digits=False,
+                 direction='vertical',
+                 rotate_digits=False,   # will be back soon
+                 zoom_digits=False,     # will be back soon
                  num_of_videos=1,
                  generation_path='./train')
 
-    # generator.show_example()
-    generator.generate()
+    generator.show_example()
+    # generator.generate()

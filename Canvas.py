@@ -42,7 +42,7 @@ class Canvas:
     def check_digit_ditection(self, digit: Digit, digit_index, step):
 
         margin = step
-        collision_density = 0
+        collision_density = 5
         pixel_sum_x = 0
         pixel_sum_y = 0
 
@@ -102,7 +102,8 @@ class Canvas:
 
         for i, digit in enumerate(self.digits):
             x = random.randint(0, self.canvas[i].shape[1]-digit.image.shape[1])
-            y = random.randint(0, self.canvas[i].shape[0]-digit.image.shape[0])
+            # the reason why it is devided by 2 is make sure there are rooms for other digit
+            y = random.randint(0, (self.canvas[i].shape[0] // 2)-digit.image.shape[0])
             h, w = digit.image.shape
             if self.collision:
                 while True:
