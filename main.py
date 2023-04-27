@@ -1,8 +1,9 @@
-from generator import Generator
+# from generator import Generator
+from Generator import Generator
 
 if __name__ == '__main__':
     '''
-        There are 5 parameters 
+        There are 5 main parameters 
 
         frame_len:
             the length of frame you want to generate
@@ -19,9 +20,6 @@ if __name__ == '__main__':
                                                                               circular
             default is vertical
 
-        acceleration:
-            adds non-linearity to the movement of digits
-
         num_digits:
             determine the numbers of appearing digits maximum 2 in vertical or horizontal direction,
                                                               3 in diagonal direction,
@@ -37,20 +35,19 @@ if __name__ == '__main__':
 
             default is current directory which is '.'
     '''
-    directions = ['vertical']#, 'horizontal', 'circular']
+    # directions = ['vertical']#, 'horizontal', 'circular']
 
-    for d in directions:
-        generator = Generator(
-                        frame_len=50,
-                        step=3,
-                        direction=d,
-                        acceleration=0,
-                        num_digits=2,
-                        zoom=True,
-                        rotate=False,
-                        canvas_size=64,
-                        num_of_videos=200000,
-                        generation_path='./train/')
+    generator = Generator( 
+                 frame_length=20,
+                 step=2,
+                 canvas_size=(64, 64),
+                 num_digits=2,
+                 collision=True,
+                 direction='random',
+                 rotate_digits=False,
+                 zoom_digits=False,
+                 num_of_videos=1,
+                 generation_path='./train')
 
-        generator.show_example()
-        # generator.generate()
+    # generator.show_example()
+    generator.generate()

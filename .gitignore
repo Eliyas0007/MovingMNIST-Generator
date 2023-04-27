@@ -18,6 +18,9 @@ GeneratedExample/
 # test
 test.py
 
+# old version files
+generator_old.py
+
 # Distribution / packaging
 .Python
 build/
