@@ -10,6 +10,7 @@ This is a really handy tool for generating customized MovingMNIST dataset. It us
     <img width="120" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/circular_2_digits.gif" alt="Circular Example 2">
     <img width="120" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/rotation_and_zooming_example.gif" alt="zooming example">
     <img width="120" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/rotation_example.gif" alt="rotation example">
+    <img width="120" src="https://github.com/Eliyas0007/MovingMNIST-Generator/blob/main/examples/collision_example.gif" alt="collision example">
     
 </p>
 
