@@ -38,15 +38,16 @@ if __name__ == '__main__':
 
     generator = Generator( 
                  frame_length=20,
-                 step=2,
-                 canvas_size=(64, 32),
+                 step=3,
+                 canvas_size=(64, 64),
                  num_digits=2,
                  collision=True,
-                 direction='vertical',
+                 direction='diagonal',
                  rotate_digits=False,   # will be back soon
                  zoom_digits=False,     # will be back soon
-                 num_of_videos=1,
-                 generation_path='./train')
+                 num_of_videos=200000,
+                 num_mask=0,
+                 generation_path='./')
 
-    generator.show_example()
-    # generator.generate()
+    # generator.show_example()
+    generator.generate()

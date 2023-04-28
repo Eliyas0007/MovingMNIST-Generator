@@ -1,31 +1,36 @@
-import sys
-import cv2
 import numpy
 import random
 
 from Digit import Digit
 
-# random.seed(int(sys.argv[1]))
-
 class Canvas:
 
-    def __init__(self, size: tuple=(64, 64), num_digits=2, collision=True) -> None:
+    def __init__(self, size: tuple=(64, 64), num_digits=2, collision=False) -> None:
         
-        self.height = size[0]
-        self.width = size[1]
-
         self.digits = []
         self.processes = []
         self.collision = collision
         self.num_digits = num_digits
 
-        self.canvas = numpy.zeros((num_digits, self.height, self.width))
-        self.combined_canvas = numpy.zeros((self.height, self.width))
+        self.padding_size = 10
+
+        self.canvas = numpy.zeros((num_digits, size[0] + (self.padding_size * 2), size[1] + (self.padding_size * 2)))
+        self.combined_canvas = numpy.zeros((size[0], size[1]))
+
+        self.height = self.canvas.shape[1]
+        self.width = self.canvas.shape[2]
+
         self.motion_types = ['vertical', 'horizontal', 'diagonal']
 
         for _ in range(num_digits):
             self.digits.append(Digit())
         self.init_digit_positions()
+
+
+    def update_combinde_canvas(self):
+        self.combined_canvas[:, :] = 0
+        for canvas in self.canvas:
+            self.combined_canvas += canvas[self.padding_size:-self.padding_size, self.padding_size:-self.padding_size]
 
 
     def place_digit_on_canvas(self, digit: Digit, digit_index):
@@ -41,7 +46,7 @@ class Canvas:
 
     def check_digit_ditection(self, digit: Digit, digit_index, step):
 
-        margin = step
+        margin = self.padding_size
         collision_density = 5
         pixel_sum_x = 0
         pixel_sum_y = 0
@@ -65,8 +70,8 @@ class Canvas:
         if self.collision:
             for i, c in enumerate(self.canvas):
                 if i != digit_index:
-                    pixel_sum_x += numpy.sum(c[d_y:d_y+d_h, d_x_t:d_x_t+d_w])
-                    pixel_sum_y += numpy.sum(c[d_y_t:d_y_t+d_h, d_x:d_x+d_w])
+                    pixel_sum_x += numpy.sum(c[d_y-1:d_y+d_h+1, d_x_t:d_x_t+d_w])
+                    pixel_sum_y += numpy.sum(c[d_y_t:d_y_t+d_h, d_x-1:d_x+d_w+1])
         
         if (d_x_t + d_w > self.width - margin) or (d_x_t < margin) or (pixel_sum_x > collision_density):
             digit.change_direction_x()
@@ -93,27 +98,33 @@ class Canvas:
         for i, digit in enumerate(self.digits):
             self.place_digit_on_canvas(digit, i)
             
-        self.combined_canvas[:, :] = 0
-        for canvas in self.canvas:
-            self.combined_canvas += canvas
+        self.update_combinde_canvas()
+
+
+    def get_canvas_without_padding(self):
+        return self.canvas[:, self.padding_size+1:-self.padding_size+1, self.padding_size+1:-self.padding_size+1]
 
 
     def init_digit_positions(self):
-
+        
+        pad = (self.padding_size // 2)
         for i, digit in enumerate(self.digits):
-            x = random.randint(0, self.canvas[i].shape[1]-digit.image.shape[1])
-            # the reason why it is devided by 2 is make sure there are rooms for other digit
-            y = random.randint(0, (self.canvas[i].shape[0] // 2)-digit.image.shape[0])
+            
+            x = random.randint(pad, self.canvas[i].shape[1]-digit.image.shape[1] - pad)
+            y = random.randint(pad, self.canvas[i].shape[0]-digit.image.shape[0] - pad)
+
             h, w = digit.image.shape
             if self.collision:
                 while True:
-                    if numpy.sum(self.combined_canvas[y:y+h, x:x+w]) != 0:
-                        x = random.randint(0, self.canvas[i].shape[1]-digit.image.shape[1])
-                        y = random.randint(0, self.canvas[i].shape[0]-digit.image.shape[0])
+                    if numpy.sum(self.combined_canvas[y-1:y+h+1, x-1:x+w+1]) != 0:
+                        try: 
+                            x = random.randint(pad, self.canvas[i].shape[1]-digit.image.shape[1] - pad)
+                            y = random.randint(pad, self.canvas[i].shape[0]-digit.image.shape[0] - pad)
+                        except ValueError:
+                            pass
                     else:
                         break
+
             digit.set_coordinate([x, y])
             self.place_digit_on_canvas(digit, i)
-
-            for canvas in self.canvas:
-                self.combined_canvas += canvas 
+            self.update_combinde_canvas()

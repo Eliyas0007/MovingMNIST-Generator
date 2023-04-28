@@ -4,6 +4,7 @@ import tqdm
 import glob
 import numpy
 import shutil
+import random
 
 from Canvas import Canvas
 
@@ -19,9 +20,11 @@ class Generator():
                  rotate_digits=False,
                  zoom_digits=False,
                  num_of_videos=1,
+                 num_mask = 1,
                  generation_path='.') -> None:
         
         self.step = step
+        self.num_mask = num_mask
         self.collision = collision
         self.direction = direction
         self.num_digits = num_digits
@@ -37,7 +40,7 @@ class Generator():
     def generate(self):
 
         try:
-            root_path = self.generation_path + f'/data_{self.direction}_{self.num_digits}digits_{self.canvas_size[0]}h_{self.canvas_size[1]}w_{self.frame_len}f_rotate{1 if self.rotate_digits else 0}'
+            root_path = self.generation_path + f'/data_{self.direction}_{self.num_digits}d_{self.canvas_size[0]}h_{self.canvas_size[1]}w_{self.frame_len}f_r{1 if self.rotate_digits else 0}_co{1 if self.collision else 0}'
             if os.path.exists(root_path):
                 print('Deleting old files...')
                 shutil.rmtree(root_path)
@@ -67,15 +70,21 @@ class Generator():
             except FileExistsError or FileNotFoundError:
                 ...
             
+            mask_indeces = random.sample([n for n in range(self.num_digits)], self.num_mask)
             canvas = Canvas(self.canvas_size, self.num_digits, self.collision)
             for f in range(self.frame_len):
-                canvas.move_digits(self.direction, self.step)            
+                canvas.move_digits(self.direction, self.step) 
+
+                for mask_index in mask_indeces:
+                    canvas.canvas[mask_index][:, :] = 0
+
+                canvas.update_combinde_canvas()
                 frame_o = canvas.combined_canvas
                 image_path_o = root_path + video_original_path + f'/frame_o_{f}.png'
                 cv2.imwrite(image_path_o, frame_o * 255)
-
+                canvas_without_padding = canvas.get_canvas_without_padding()
                 for i in range(self.num_digits):
-                    frame_i = canvas.canvas[i]
+                    frame_i = canvas_without_padding[i]
                     image_path_i = root_path + sub_digit_paths[i] + f'/frame_s{i}_{f}.png'
                     cv2.imwrite(image_path_i, frame_i * 255)
 
@@ -89,19 +98,25 @@ class Generator():
                 except:
                     print("Error while deleting file : ", path)
 
+        mask_indeces = random.sample([n for n in range(self.num_digits)], self.num_mask)
         canvas = Canvas(self.canvas_size, self.num_digits, self.collision)
+        clip = []
         for f in range(self.frame_len):
             canvas.move_digits(self.direction, self.step)
+            
+            for mask_index in mask_indeces:
+                canvas.canvas[mask_index][:, :] = 0         
+            canvas.update_combinde_canvas()
             frame = canvas.combined_canvas
+            clip.append(frame)
+            canvas_without_padding = canvas.get_canvas_without_padding()
             for i in range(self.num_digits):           
-                frame = numpy.concatenate((frame, canvas.canvas[i]), axis=1)
+                frame = numpy.concatenate((frame, canvas_without_padding[i]), axis=1)
 
-            cv2.imshow(f'example', frame)
-
-            cv2.waitKey(100)
+            # cv2.imshow(f'example', frame)
+            # cv2.waitKey(100)
+            # print(frame.shape)
             try: os.mkdir('./GeneratedExample')
             except FileExistsError: pass
             cv2.imwrite(f'./GeneratedExample/example{f}.png', frame * 255)
-
-
-        
+    
